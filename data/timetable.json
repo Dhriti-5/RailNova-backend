@@ -1,0 +1,6 @@
+[
+  {"train_id": "Rajdhani_12952", "priority": 1,
+   "stops": [{"station": "Platform1", "arr": "10:00", "dep": "10:05"}]},
+  {"train_id": "Freight_758", "priority": 3,
+   "stops": [{"station": "Platform2", "arr": "10:02", "dep": "10:07"}]}
+]

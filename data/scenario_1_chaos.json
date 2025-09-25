@@ -1,0 +1,7 @@
+{
+  "timestamp": "10:00",
+  "trains": [
+    { "train_id": "Rajdhani_12952", "priority": 1, "status": "delayed_15_mins" },
+    { "train_id": "Freight_758", "priority": 3, "status": "on_time" }
+  ]
+}

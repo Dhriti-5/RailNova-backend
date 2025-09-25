@@ -1,0 +1,5 @@
+{
+  "tracks": ["TrackA", "TrackB"],
+  "platforms": ["Platform1", "Platform2"],
+  "junctions": ["JunctionA", "JunctionB"]
+}
