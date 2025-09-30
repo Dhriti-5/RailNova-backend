@@ -1,126 +1,170 @@
-# 🚆 RailNova Backend (AI Train Traffic Co-Pilot)
+# 🚆 RailNova-backend  (Basic Prototype)
 
-Backend service for **/ RailNova** — an AI-powered assistant that helps railway controllers optimize train schedules, reduce delays, and explain decisions in real time.
-
----
-
-## ⚙️ Features
-- REST API built with Flask
-- Accepts train traffic scenarios in JSON
-- Returns both optimized schedules and explainable reasoning
-- Designed for hackathon prototype integration with a React frontend
+This is the **backend service** for the RailNova / Rail-GPT AI Traffic Co-Pilot.  
+It is a lightweight prototype built with **Flask + PuLP** to simulate train scheduling, demonstrate optimization, and provide APIs for frontend integration.
 
 ---
 
-## 📦 Setup (Backend Developers)
-1. Clone this repo:
-   ```bash
-   git clone <your-repo-url>
-   cd RailNova-Backend
-   Create virtual environment:
+## 📌 Features
+- ✅ Health check endpoint (`/`)  
+- ✅ Accepts disruption scenarios (`/optimize`)  
+- ✅ Returns both:
+  - Baseline schedule (naive solver)  
+  - AI-optimized schedule (toy optimization with PuLP)  
+- ✅ Generates **KPIs** (e.g., total delay)  
+- ✅ Provides **Explainable AI reasoning**  
 
+---
+
+## 🛠️ Tech Stack
+- **Python 3.9+**  
+- **Flask** – API server  
+- **Pandas** – (future data parsing)  
+- **PuLP** – Linear programming optimizer  
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/Dhriti-5/RailNova-backend.git
+cd RailNova-backend
+````
+
+### 2. Setup Virtual Environment
+
+```bash
 python -m venv venv
-venv\Scripts\activate   # (Windows)
-# source venv/bin/activate   # (Linux/Mac)
+# On Windows
+venv\Scripts\activate
+# On Linux/Mac
+source venv/bin/activate
+```
 
+### 3. Install Dependencies
 
-Install dependencies:
-
+```bash
 pip install -r requirements.txt
+```
 
+### 4. Run Server
 
-Run the Flask app:
-
+```bash
 python app.py
+```
 
+Backend runs on: **[http://127.0.0.1:5000](http://127.0.0.1:5000)**
 
-By default, it runs on:
-http://127.0.0.1:5000
+---
 
-🔌 API Endpoints
-1. Health Check
-GET /
+## 📡 API Endpoints
 
+### 1. Health Check
 
-Response:
+`GET /`
+**Response:**
 
-{ "status": "ok", "message": "RailNova Backend is running 🚆" }
+```json
+{"status": "ok"}
+```
 
-2. Optimize Train Traffic
-POST /optimize
-Content-Type: application/json
+---
 
+### 2. Optimize Schedule
 
-Request Body (example):
+`POST /optimize`
 
+**Request Example**
+
+```json
 {
+  "timestamp": "10:00",
   "trains": [
-    { "train_id": "EXP001", "priority": 1, "status": "delayed_20_mins" },
-    { "train_id": "FRG010", "priority": 3, "status": "on_time" }
+    {"train_id": "Rajdhani_12952", "priority": 1, "status": "delayed_15_mins"},
+    {"train_id": "Freight_758", "priority": 3, "status": "on_time"}
   ]
 }
+```
 
+**Response Example**
 
-Response:
-
+```json
 {
-  "status": "success",
-  "data": {
+  "baseline": {
     "schedule": [
-      {
-        "train_id": "EXP001",
-        "priority": 1,
-        "initial_delay": 20,
-        "final_delay": 10
-      },
-      {
-        "train_id": "FRG010",
-        "priority": 3,
-        "initial_delay": 0,
-        "final_delay": 0
-      }
+      {"train_id": "Rajdhani_12952", "final_delay": 15},
+      {"train_id": "Freight_758", "final_delay": 0}
     ],
-    "kpis": {
-      "total_delay": 10,
-      "avg_delay": 5.0,
-      "num_trains": 2
-    },
-    "reasoning": [
-      "Reduced EXP001 delay from 20 → 10 (express priority)."
+    "kpis": {"total_delay": 15}
+  },
+  "ai": {
+    "schedule": [
+      {"train_id": "Rajdhani_12952", "final_delay": 0.0},
+      {"train_id": "Freight_758", "final_delay": 0.0}
+    ],
+    "kpis": {"total_delay": 0.0},
+    "reasoning": ["All trains scheduled with minimal conflict."]
+  }
+}
+```
+
+---
+
+## 🧪 Testing
+
+### With `curl`
+
+```bash
+curl -X POST http://127.0.0.1:5000/optimize \
+  -H "Content-Type: application/json" \
+  -d @data/scenario_1_chaos.json
+```
+
+### With PowerShell
+
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:5000/optimize" `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{
+    "timestamp": "10:00",
+    "trains": [
+      {"train_id": "Rajdhani_12952", "priority": 1, "status": "delayed_15_mins"},
+      {"train_id": "Freight_758", "priority": 3, "status": "on_time"}
     ]
-  }
-}
+  }'
+```
 
-🖥️ Usage (Frontend Developers)
+---
 
-The backend runs locally at http://127.0.0.1:5000
+## 📂 Project Structure
 
-Example React call with axios:
+```
+rail-gpt-backend/
+├── app.py              # Flask app & endpoints
+├── solvers.py          # Baseline & AI solvers
+├── data/               # Dummy data files
+│   ├── layout.json
+│   ├── timetable.json
+│   └── scenario_1_chaos.json
+├── requirements.txt    # Dependencies
+└── README.md
+```
 
-import axios from "axios";
+---
 
-async function runSimulation() {
-  try {
-    const response = await axios.post("http://127.0.0.1:5000/optimize", {
-      trains: [
-        { train_id: "EXP001", priority: 1, status: "delayed_20_mins" },
-        { train_id: "FRG010", priority: 3, status: "on_time" }
-      ]
-    });
-    console.log(response.data);
-    // response.data.data.schedule -> array for Gantt chart
-    // response.data.data.kpis -> feed into KPI cards
-    // response.data.data.reasoning -> show in RecommendationPanel
-  } catch (err) {
-    console.error("API call failed:", err);
-  }
-}
+## 🔗 Frontend Integration
 
+The backend is designed to be consumed by the **RailNova Frontend Dashboard**.
+Frontend will hit:
 
-Integrate this data into:
+```
+POST http://127.0.0.1:5000/optimize
+```
 
-Gantt Chart View → use schedule
+Input: scenario JSON
+Output: schedules, KPIs, reasoning
 
-KPI Cards → use kpis
+---
 
-Recommendation Panel → use reasoning
